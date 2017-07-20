@@ -148,9 +148,21 @@ class XLSXReader {
 		throw new Exception("Sheet ID $sheetId does not exist in the Excel file");
 	}
 
-	protected function getSheetXML($name) {
-		return simplexml_load_string($this->getEntryData($this->sheetInfo[$name]['path']));
-	}
+    protected function getSheetXML($name) {
+        $sheetxml = $this->getEntryData($this->sheetInfo[$name]['path']);
+        $re = '/(^<\?xml\s+version\s*=\s*(["\'])(1\.\d+)(["\'])\s+encoding\s*=["\'](((?!["\']).)*)["\'])/';
+        preg_match_all($re, $sheetxml, $matches, PREG_SET_ORDER, 0);
+        if (isset($matches[0][5])) {
+            $encoding = $matches[0][5];
+            if ($encoding != 'UTF-8') {
+                throw new Exception('Encoding is not UTF-8! '.$encoding.' is not supported!');
+            }
+        } else {
+            throw new Exception('Encoding is not specified!');
+        }
+
+        return simplexml_load_string($sheetxml);
+    }
 
 	// converts an Excel date field (a number) to a unix timestamp (granularity: seconds)
 	public static function toUnixTimeStamp($excelDateTime) {

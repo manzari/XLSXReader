@@ -34,6 +34,15 @@ Get the data from a sheet:
 $data = $xlsx->getSheetData('Sales');
 ``` 
 
+Catch eventual encoding errors:
+```php
+try {
+  $data = $xlsx->getSheetData('Sales');
+} catch (Exception $e) {
+  print('Oops! Please use different encoding: '.$e."\n");
+}
+``` 
+
 
 ## What it doesn't do ##
 

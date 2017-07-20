@@ -21,6 +21,9 @@ Key Changes include:
 	Better handling of cells with style information but no value
 	Change of class names and method names
 	Removed rowsEx functionality including extraction of hyperlinks
+
+Modified to throw exceptions when sheet xml specifies other encoding than UTF-8 by Manzari <manzari@mailbox.org>
+
 */
 
 class XLSXReader {

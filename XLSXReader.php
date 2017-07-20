@@ -42,6 +42,9 @@ class XLSXReader {
 	const SCHEMA_SHAREDSTRINGS =  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings';
 	const SCHEMA_WORKSHEETRELATION =  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet';
 
+    //Regular Expressions
+    private $regex_find_encoding = '/(^<\?xml\s+version\s*=\s*(["\'])(1\.\d+)(["\'])\s+encoding\s*=["\'](((?!["\']).)*)["\'])/';
+
 	public function __construct($filePath, $config = array()) {
 		$this->config = array_merge($this->config, $config);
 		$this->zip = new ZipArchive();
@@ -153,12 +156,10 @@ class XLSXReader {
 
     protected function getSheetXML($name) {
         $sheetxml = $this->getEntryData($this->sheetInfo[$name]['path']);
-        $re = '/(^<\?xml\s+version\s*=\s*(["\'])(1\.\d+)(["\'])\s+encoding\s*=["\'](((?!["\']).)*)["\'])/';
-        preg_match_all($re, $sheetxml, $matches, PREG_SET_ORDER, 0);
+        preg_match_all($this->regex_find_encoding, $sheetxml, $matches, PREG_SET_ORDER, 0);
         if (isset($matches[0][5])) {
-            $encoding = $matches[0][5];
-            if ($encoding != 'UTF-8') {
-                throw new Exception('Encoding is not UTF-8! '.$encoding.' is not supported!');
+            if ($matches[0][5] != 'UTF-8') {
+                throw new Exception('Encoding is not UTF-8! '.$matches[0][5].' is not supported!');
             }
         } else {
             throw new Exception('Encoding is not specified!');
